@@ -60,7 +60,6 @@ export default function Home() {
             <img src="/lobster.png" alt="The Lobster" className="w-16 h-16 rounded-full" />
             <div>
               <h1 className="text-3xl font-bold">The Lobster's Mission Control</h1>
-              <p className="text-slate-400">Pedro & The Lobster 🦞</p>
             </div>
           </div>
         </header>
