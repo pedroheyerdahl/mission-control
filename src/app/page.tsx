@@ -3,10 +3,20 @@
 import { useState, useEffect } from 'react';
 
 export default function Home() {
+  const [authenticated, setAuthenticated] = useState(false);
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [time, setTime] = useState('');
   const [date, setDate] = useState('');
-  const [weather, setWeather] = useState<{temp: string, condition: string, humidity?: string} | null>(null);
+  const [weather, setWeather] = useState<{temp: string, condition: string} | null>(null);
   const [greeting, setGreeting] = useState('Good day');
+
+  useEffect(() => {
+    const auth = localStorage.getItem('mission-control-auth');
+    if (auth === 'true') {
+      setAuthenticated(true);
+    }
+  }, []);
 
   useEffect(() => {
     const updateTime = () => {
@@ -44,24 +54,77 @@ export default function Home() {
           setWeather({
             temp: data.current_condition[0].temp_C,
             condition: data.current_condition[0].weatherDesc[0].value,
-            humidity: data.current_condition[0].humidity
           });
         }
       })
       .catch(() => {});
   }, []);
 
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (password === 'lobster') {
+      localStorage.setItem('mission-control-auth', 'true');
+      setAuthenticated(true);
+      setError('');
+    } else {
+      setError('Incorrect password');
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('mission-control-auth');
+    setAuthenticated(false);
+    setPassword('');
+  };
+
+  if (!authenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white flex items-center justify-center p-8">
+        <div className="max-w-md w-full">
+          <div className="text-center mb-8">
+            <img src="/lobster.png" alt="The Lobster" className="w-20 h-20 rounded-full mx-auto mb-4" />
+            <h1 className="text-2xl font-bold">The Lobster's Mission Control</h1>
+            <p className="text-slate-400 mt-2">Enter password to access</p>
+          </div>
+          
+          <form onSubmit={handleLogin} className="space-y-4">
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Enter password..."
+              className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500 text-center"
+            />
+            {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+            <button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-lg font-medium transition"
+            >
+              Enter
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <header className="mb-12">
+        <header className="mb-12 flex justify-between items-start">
           <div className="flex items-center gap-4 mb-2">
             <img src="/lobster.png" alt="The Lobster" className="w-16 h-16 rounded-full" />
             <div>
               <h1 className="text-3xl font-bold">The Lobster's Mission Control</h1>
             </div>
           </div>
+          <button
+            onClick={handleLogout}
+            className="text-slate-400 hover:text-white text-sm"
+          >
+            Logout
+          </button>
         </header>
 
         {/* Time & Weather */}
@@ -89,7 +152,7 @@ export default function Home() {
         <div className="bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-xl p-6 mb-8 border border-blue-500/30">
           <h2 className="text-xl font-semibold mb-2">{greeting}, Pedro! 👋</h2>
           <p className="text-slate-300">
-            Your AI assistant is online and ready. This mission control will grow over time.
+            Your AI assistant is online and ready.
           </p>
         </div>
 
@@ -131,7 +194,7 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-              <span>Gmail</span>
+              <span>Supabase</span>
             </div>
           </div>
         </div>
