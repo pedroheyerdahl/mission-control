@@ -3,25 +3,15 @@
 import { useState, useEffect } from 'react';
 
 export default function Home() {
-  const [authenticated, setAuthenticated] = useState(false);
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [time, setTime] = useState('');
   const [date, setDate] = useState('');
   const [weather, setWeather] = useState<{temp: string, condition: string} | null>(null);
   const [greeting, setGreeting] = useState('Good day');
 
   useEffect(() => {
-    const auth = localStorage.getItem('mission-control-auth');
-    if (auth === 'true') {
-      setAuthenticated(true);
-    }
-  }, []);
-
-  useEffect(() => {
     const updateTime = () => {
       const now = new Date();
-      const brusselsTime = now.toLocaleTimeString('en-US', { 
+      const saoPauloTime = now.toLocaleTimeString('en-US', { 
         timeZone: 'America/Sao_Paulo',
         hour: '2-digit', 
         minute: '2-digit' 
@@ -32,7 +22,7 @@ export default function Home() {
         month: 'long', 
         day: 'numeric'
       });
-      setTime(brusselsTime);
+      setTime(saoPauloTime);
       setDate(dateStr);
       
       const hour = now.getHours();
@@ -60,71 +50,17 @@ export default function Home() {
       .catch(() => {});
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (password === 'lobster') {
-      localStorage.setItem('mission-control-auth', 'true');
-      setAuthenticated(true);
-      setError('');
-    } else {
-      setError('Incorrect password');
-    }
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem('mission-control-auth');
-    setAuthenticated(false);
-    setPassword('');
-  };
-
-  if (!authenticated) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white flex items-center justify-center p-8">
-        <div className="max-w-md w-full">
-          <div className="text-center mb-8">
-            <img src="/lobster.png" alt="The Lobster" className="w-20 h-20 rounded-full mx-auto mb-4" />
-            <h1 className="text-2xl font-bold">The Lobster's Mission Control</h1>
-            <p className="text-slate-400 mt-2">Enter password to access</p>
-          </div>
-          
-          <form onSubmit={handleLogin} className="space-y-4">
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Enter password..."
-              className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 focus:outline-none focus:border-blue-500 text-center"
-            />
-            {error && <p className="text-red-400 text-sm text-center">{error}</p>}
-            <button
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-lg font-medium transition"
-            >
-              Enter
-            </button>
-          </form>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 text-white p-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <header className="mb-12 flex justify-between items-start">
+        <header className="mb-12">
           <div className="flex items-center gap-4 mb-2">
             <img src="/lobster.png" alt="The Lobster" className="w-16 h-16 rounded-full" />
             <div>
               <h1 className="text-3xl font-bold">The Lobster's Mission Control</h1>
             </div>
           </div>
-          <button
-            onClick={handleLogout}
-            className="text-slate-400 hover:text-white text-sm"
-          >
-            Logout
-          </button>
         </header>
 
         {/* Time & Weather */}
