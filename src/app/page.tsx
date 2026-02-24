@@ -6,7 +6,7 @@ export default function Home() {
   const [time, setTime] = useState('');
   const [date, setDate] = useState('');
   const [weather, setWeather] = useState<{temp: string, condition: string, humidity?: string} | null>(null);
-  const [greeting, setGreeting] = useState('');
+  const [greeting, setGreeting] = useState('Good day');
 
   useEffect(() => {
     const updateTime = () => {
@@ -56,11 +56,13 @@ export default function Home() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <header className="mb-12">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-4xl">🦞</span>
-            <h1 className="text-3xl font-bold">Mission Control</h1>
+          <div className="flex items-center gap-4 mb-2">
+            <img src="/lobster.png" alt="The Lobster" className="w-16 h-16 rounded-full" />
+            <div>
+              <h1 className="text-3xl font-bold">The Lobster's Mission Control</h1>
+              <p className="text-slate-400">Pedro & The Lobster 🦞</p>
+            </div>
           </div>
-          <p className="text-slate-400">Pedro & The Lobster</p>
         </header>
 
         {/* Time & Weather */}
