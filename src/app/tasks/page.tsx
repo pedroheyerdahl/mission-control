@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 
 interface Task {
   id: string;
@@ -10,33 +11,54 @@ interface Task {
 }
 
 export default function Tasks() {
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: '1', text: 'Set up morning brief routine', completed: false, priority: 'high' },
-    { id: '2', text: 'Connect Slack MCP', completed: false, priority: 'medium' },
-    { id: '3', text: 'Configure heartbeat for repo checks', completed: false, priority: 'medium' },
-    { id: '4', text: 'Install recommended skills', completed: false, priority: 'low' },
-  ]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const addTask = () => {
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const fetchTasks = async () => {
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .order('created_at', { ascending: true });
+    
+    if (data) setTasks(data);
+    setLoading(false);
+  };
+
+  const addTask = async () => {
     if (!newTask.trim()) return;
-    const task: Task = {
-      id: Date.now().toString(),
-      text: newTask,
-      completed: false,
-      priority: 'medium'
-    };
-    setTasks([...tasks, task]);
+    const id = Date.now().toString();
+    const { data } = await supabase
+      .from('tasks')
+      .insert([{ id, text: newTask, completed: false, priority: 'medium' }])
+      .select()
+      .single();
+    
+    if (data) setTasks([...tasks, data]);
     setNewTask('');
   };
 
-  const toggleTask = (id: string) => {
+  const toggleTask = async (id: string, completed: boolean) => {
+    await supabase
+      .from('tasks')
+      .update({ completed: !completed })
+      .eq('id', id);
+    
     setTasks(tasks.map(t => 
-      t.id === id ? { ...t, completed: !t.completed } : t
+      t.id === id ? { ...t, completed: !completed } : t
     ));
   };
 
-  const deleteTask = (id: string) => {
+  const deleteTask = async (id: string) => {
+    await supabase
+      .from('tasks')
+      .delete()
+      .eq('id', id);
+    
     setTasks(tasks.filter(t => t.id !== id));
   };
 
@@ -79,46 +101,50 @@ export default function Tasks() {
         </div>
 
         {/* Task List */}
-        <div className="space-y-3">
-          {tasks.map(task => (
-            <div
-              key={task.id}
-              className={`flex items-center gap-4 p-4 rounded-lg bg-slate-700/30 border border-slate-600/50 ${
-                task.completed ? 'opacity-50' : ''
-              }`}
-            >
-              <button
-                onClick={() => toggleTask(task.id)}
-                className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition ${
-                  task.completed 
-                    ? 'bg-green-500 border-green-500' 
-                    : 'border-slate-500 hover:border-green-500'
+        {loading ? (
+          <p className="text-slate-400">Loading...</p>
+        ) : (
+          <div className="space-y-3">
+            {tasks.map(task => (
+              <div
+                key={task.id}
+                className={`flex items-center gap-4 p-4 rounded-lg bg-slate-700/30 border border-slate-600/50 ${
+                  task.completed ? 'opacity-50' : ''
                 }`}
               >
-                {task.completed && <span>✓</span>}
-              </button>
-              
-              <span className={`flex-1 ${task.completed ? 'line-through text-slate-500' : ''}`}>
-                {task.text}
-              </span>
-              
-              <span className={`text-xs px-2 py-1 rounded border ${priorityColor(task.priority)}`}>
-                {task.priority}
-              </span>
-              
-              <button
-                onClick={() => deleteTask(task.id)}
-                className="text-slate-500 hover:text-red-400 transition"
-              >
-                ✕
-              </button>
-            </div>
-          ))}
-          
-          {tasks.length === 0 && (
-            <p className="text-center text-slate-500 py-8">No tasks yet. Add one above!</p>
-          )}
-        </div>
+                <button
+                  onClick={() => toggleTask(task.id, task.completed)}
+                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition ${
+                    task.completed 
+                      ? 'bg-green-500 border-green-500' 
+                      : 'border-slate-500 hover:border-green-500'
+                  }`}
+                >
+                  {task.completed && <span>✓</span>}
+                </button>
+                
+                <span className={`flex-1 ${task.completed ? 'line-through text-slate-500' : ''}`}>
+                  {task.text}
+                </span>
+                
+                <span className={`text-xs px-2 py-1 rounded border ${priorityColor(task.priority)}`}>
+                  {task.priority}
+                </span>
+                
+                <button
+                  onClick={() => deleteTask(task.id)}
+                  className="text-slate-500 hover:text-red-400 transition"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+            
+            {tasks.length === 0 && (
+              <p className="text-center text-slate-500 py-8">No tasks yet. Add one above!</p>
+            )}
+          </div>
+        )}
 
         <div className="mt-8 pt-6 border-t border-slate-700 text-sm text-slate-500">
           <p>💡 Tip: The Lobster can add tasks for you. Just ask!</p>
