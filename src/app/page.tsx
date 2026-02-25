@@ -93,7 +93,7 @@ export default function Home() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <a href="/tasks" className="bg-slate-700/50 hover:bg-slate-600/50 rounded-xl p-4 text-center transition">
             <span className="text-2xl mb-2 block">✅</span>
             <span className="text-sm">Tasks</span>
@@ -104,7 +104,11 @@ export default function Home() {
           </a>
           <a href="/brief" className="bg-slate-700/50 hover:bg-slate-600/50 rounded-xl p-4 text-center transition">
             <span className="text-2xl mb-2 block">📋</span>
-            <span className="text-sm">Morning Brief</span>
+            <span className="text-sm">Brief</span>
+          </a>
+          <a href="/knowledge" className="bg-slate-700/50 hover:bg-slate-600/50 rounded-xl p-4 text-center transition">
+            <span className="text-2xl mb-2 block">🧠</span>
+            <span className="text-sm">Knowledge</span>
           </a>
           <a href="/settings" className="bg-slate-700/50 hover:bg-slate-600/50 rounded-xl p-4 text-center transition">
             <span className="text-2xl mb-2 block">⚙️</span>
